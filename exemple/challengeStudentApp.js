@@ -35,3 +35,18 @@ function showNames() {
   }
 
   showNames();
+
+// 2. Rechercher un élève par nom
+function searchByName(name) {
+    const found = students.find(
+      (s) => s.name.toLowerCase() === name.toLowerCase()
+    );
+    if (found) {
+      console.log("\n Élève trouvé :");
+      console.log(found);
+    } else {
+      console.warn("⚠️ Aucun élève trouvé avec ce nom.");
+    }
+}
+
+searchByName("AHMED AMIRI");
