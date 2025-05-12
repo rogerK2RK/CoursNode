@@ -20,7 +20,7 @@ function demanderNombre() {
 
     // Vérification de la saisie
     if (isNaN(nombre) || nombre < 1 || nombre > 100) {
-      console.log("⚠️ Entrez un nombre valide entre 1 et 100.\n");
+      console.log(" Entrez un nombre valide entre 1 et 100.\n");
       return demanderNombre(); // Ne compte pas comme tentative
     }
 
@@ -30,7 +30,7 @@ function demanderNombre() {
     } else if (nombre > nombreMystere) {
       console.log("C'est plus petit.\n");
     } else {
-      console.log(`🎉 Bravo ! Vous avez trouvé le nombre mystère : ${nombreMystere}`);
+      console.log(` Bravo ! Vous avez trouvé le nombre mystère : ${nombreMystere}`);
       rl.close();
       return;
     }
@@ -41,7 +41,7 @@ function demanderNombre() {
     if (tentativesRestantes > 0) {
       demanderNombre();
     } else {
-      console.log(`😞 Vous avez perdu ! Le nombre mystère était ${nombreMystere}.`);
+      console.log(` Vous avez perdu ! Le nombre mystère était ${nombreMystere}.`);
       rl.close();
     }
   });
