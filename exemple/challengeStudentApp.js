@@ -50,3 +50,18 @@ function searchByName(name) {
 }
 
 searchByName("AHMED AMIRI");
+
+// 3. Filtrer les élèves avec une note moyenne > valeur
+function filterByMinNote(minNote) {
+    const filtered = students.filter((s) => s.average > minNote);
+    if (filtered.length === 0) {
+        console.log(` Aucun élève avec une moyenne > ${minNote}`);
+    } else {
+        console.log(`\n Élèves avec une moyenne > ${minNote} :`);
+        filtered.forEach((s) =>
+        console.log(`${s.name} - Moyenne : ${s.average}`)
+        );
+    }
+}
+
+filterByMinNote(17);
