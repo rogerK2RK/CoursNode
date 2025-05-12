@@ -34,7 +34,7 @@ function showNames() {
     students.forEach((s, i) => console.log(`${i + 1}. ${s.name}`));
   }
 
-  showNames();
+//   showNames();
 
 // 2. Rechercher un élève par nom
 function searchByName(name) {
@@ -49,7 +49,7 @@ function searchByName(name) {
     }
 }
 
-searchByName("AHMED AMIRI");
+// searchByName("AHMED AMIRI");
 
 // 3. Filtrer les élèves avec une note moyenne > valeur
 function filterByMinNote(minNote) {
@@ -64,4 +64,56 @@ function filterByMinNote(minNote) {
     }
 }
 
-filterByMinNote(17);
+// filterByMinNote(17);
+
+// Interface
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+});
+
+function showMenu() {
+    console.log(`\n=== MENU ÉTUDIANTS ===
+  1. Afficher tous les noms
+  2. Rechercher un élève par nom
+  3. Filtrer par moyenne minimale
+  4. Quitter\n`);
+  
+    rl.question("Votre choix : ", (choix) => {
+      switch (choix.trim()) {
+        case "1":
+          showNames();
+          return showMenu();
+  
+        case "2":
+          rl.question("Entrez le nom de l'élève : ", (nom) => {
+            searchByName(nom);
+            return showMenu();
+          });
+          break;
+  
+        case "3":
+          rl.question("Entrez la note minimale : ", (note) => {
+            const min = parseFloat(note);
+            if (isNaN(min)) {
+              console.error(" Entrez un nombre valide.");
+              return showMenu();
+            }
+            filterByMinNote(min);
+            return showMenu();
+          });
+          break;
+  
+        case "4":
+          console.log(" Fin du programme.");
+          rl.close();
+          break;
+  
+        default:
+          console.warn(" Choix invalide.");
+          return showMenu();
+      }
+    });
+}
+  
+showMenu();
