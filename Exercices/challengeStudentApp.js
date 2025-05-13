@@ -26,6 +26,21 @@ function loadStudents() {
   }
 }
 
+// Fonction pour enregistrer les données mise à jour
+function saveStudents(students) {
+  try {
+    const cleanedStudents = students.map((student) => ({
+      name: student.name,
+      notes: student.notes,
+      address: student.address,
+    }));
+    fs.writeFileSync(filePath, JSON.stringify(cleanedStudents, null, 2));
+    console.log(" Données enregistrées avec succès.");
+  } catch (error) {
+    console.error(" Erreur d'écriture :", error.message);
+  }
+}
+
 const students = loadStudents();
 
 // 1. Afficher tous les noms
@@ -45,7 +60,7 @@ function searchByName(name) {
       console.log("\n Élève trouvé :");
       console.log(found);
     } else {
-      console.warn("⚠️ Aucun élève trouvé avec ce nom.");
+      console.warn(" Aucun élève trouvé avec ce nom.");
     }
 }
 
@@ -66,6 +81,28 @@ function filterByMinNote(minNote) {
 
 // filterByMinNote(17);
 
+// 4. Ajouter une note à un élève
+function addNoteToStudent(name, note) {
+  const student = students.find((s) => s.name.toLowerCase() === name.toLowerCase());
+
+  if (!student) {
+    console.warn("⚠️ Élève introuvable.");
+    return;
+  }
+
+  if (isNaN(note) || note < 0 || note > 20) {
+    console.warn("⚠️ Note invalide. Elle doit être entre 0 et 20.");
+    return;
+  }
+
+  student.notes.push(Number(note));
+  const moyenne = student.notes.reduce((a, b) => a + b, 0) / student.notes.length;
+  student.average = Number(moyenne.toFixed(2));
+
+  saveStudents(students);
+  console.log(`✅ Note ${note} ajoutée à ${student.name}`);
+}
+
 // Interface
 const rl = readline.createInterface({
     input: process.stdin,
@@ -74,46 +111,57 @@ const rl = readline.createInterface({
 
 function showMenu() {
     console.log(`\n=== MENU ÉTUDIANTS ===
-  1. Afficher tous les noms
-  2. Rechercher un élève par nom
-  3. Filtrer par moyenne minimale
-  4. Quitter\n`);
+    1. Afficher tous les noms
+    2. Rechercher un élève par nom
+    3. Filtrer par moyenne minimale
+    4. Ajouter une note à un élève
+    5. Quitter\n`);
   
     rl.question("Votre choix : ", (choix) => {
-      switch (choix.trim()) {
-        case "1":
-          showNames();
+    switch (choix.trim()) {
+      case "1":
+        showNames();
+        return showMenu();
+
+      case "2":
+        rl.question("Nom de l'élève : ", (nom) => {
+          searchByName(nom);
           return showMenu();
-  
-        case "2":
-          rl.question("Entrez le nom de l'élève : ", (nom) => {
-            searchByName(nom);
+        });
+        break;
+
+      case "3":
+        rl.question("Note minimale : ", (note) => {
+          const min = parseFloat(note);
+          if (isNaN(min)) {
+            console.error(" Entrez un nombre valide.");
+            return showMenu();
+          }
+          filterByMinNote(min);
+          return showMenu();
+        });
+        break;
+
+      case "4":
+        rl.question("Nom de l'élève : ", (nom) => {
+          rl.question("Note à ajouter : ", (noteInput) => {
+            const note = parseFloat(noteInput);
+            addNoteToStudent(nom, note);
             return showMenu();
           });
-          break;
-  
-        case "3":
-          rl.question("Entrez la note minimale : ", (note) => {
-            const min = parseFloat(note);
-            if (isNaN(min)) {
-              console.error(" Entrez un nombre valide.");
-              return showMenu();
-            }
-            filterByMinNote(min);
-            return showMenu();
-          });
-          break;
-  
-        case "4":
-          console.log(" Fin du programme.");
-          rl.close();
-          break;
-  
-        default:
-          console.warn(" Choix invalide.");
-          return showMenu();
-      }
-    });
+        });
+        break;
+
+      case "5":
+        console.log(" Fin du programme.");
+        rl.close();
+        break;
+
+      default:
+        console.warn(" Choix invalide.");
+        return showMenu();
+    }
+  });
 }
   
 showMenu();
