@@ -1,6 +1,7 @@
 const fs = require("node:fs");
 const path = require("path");
 const readline = require("readline");
+require("dotenv").config();
 
 // Point important : fichier dans le dossier 'Data'
 const filePath = path.join(__dirname, "Data", "student.json");
@@ -29,10 +30,11 @@ function loadStudents() {
 // Fonction pour enregistrer les données mise à jour
 function saveStudents(students) {
   try {
-    const cleanedStudents = students.map((student) => ({
-      name: student.name,
-      notes: student.notes,
-      address: student.address,
+    const cleanedStudents = students.map((name, notes, address, mention) => ({
+      name,
+      notes,
+      address,
+      mention,
     }));
     fs.writeFileSync(filePath, JSON.stringify(cleanedStudents, null, 2));
     console.log(" Données enregistrées avec succès.");
@@ -86,12 +88,12 @@ function addNoteToStudent(name, note) {
   const student = students.find((s) => s.name.toLowerCase() === name.toLowerCase());
 
   if (!student) {
-    console.warn("⚠️ Élève introuvable.");
+    console.warn(" Élève introuvable.");
     return;
   }
 
   if (isNaN(note) || note < 0 || note > 20) {
-    console.warn("⚠️ Note invalide. Elle doit être entre 0 et 20.");
+    console.warn(" Note invalide. Elle doit être entre 0 et 20.");
     return;
   }
 
@@ -100,7 +102,41 @@ function addNoteToStudent(name, note) {
   student.average = Number(moyenne.toFixed(2));
 
   saveStudents(students);
-  console.log(`✅ Note ${note} ajoutée à ${student.name}`);
+  console.log(` Note ${note} ajoutée à ${student.name}`);
+}
+
+// 5. Ajouter une mention
+function getMentionFromAverage(average) {
+  const parseRange = (r) => r.split("-").map(Number);
+  const ranges = [
+    { label: "passable", range: parseRange(process.env.MENTION_PASSABLE) },
+    { label: "assez bien", range: parseRange(process.env.MENTION_ASSEZ_BIEN) },
+    { label: "bien", range: parseRange(process.env.MENTION_BIEN) },
+    { label: "très bien", range: parseRange(process.env.MENTION_TRES_BIEN) },
+  ];
+
+  const match = ranges.find(
+    ({ range }) => average >= range[0] && average < (range[1] ?? 21)
+  );
+
+  return match ? match.label : null;
+}
+
+function addMentionToStudent(name) {
+  const student = students.find((s) => s.name.toLowerCase() === name.toLowerCase());
+  if (!student) {
+    console.warn(" Élève introuvable.");
+    return;
+  }
+
+  const mention = getMentionFromAverage(student.average);
+  if (mention) {
+    student.mention = mention;
+    saveStudents(students);
+    console.log(` Mention "${mention}" ajoutée à ${student.name}`);
+  } else {
+    console.log(" Aucune mention attribuée (moyenne insuffisante).");
+  }
 }
 
 // Interface
@@ -112,12 +148,13 @@ const rl = readline.createInterface({
 function showMenu() {
     console.log(`\n=== MENU ÉTUDIANTS ===
     1. Afficher tous les noms
-    2. Rechercher un élève par nom
-    3. Filtrer par moyenne minimale
-    4. Ajouter une note à un élève
-    5. Quitter\n`);
-  
-    rl.question("Votre choix : ", (choix) => {
+2. Rechercher un élève
+3. Filtrer par moyenne minimale
+4. Ajouter une note à un élève
+5. Ajouter une mention à un élève
+6. Quitter\n`);
+
+  rl.question("Votre choix : ", (choix) => {
     switch (choix.trim()) {
       case "1":
         showNames();
@@ -126,7 +163,7 @@ function showMenu() {
       case "2":
         rl.question("Nom de l'élève : ", (nom) => {
           searchByName(nom);
-          return showMenu();
+          showMenu();
         });
         break;
 
@@ -134,11 +171,11 @@ function showMenu() {
         rl.question("Note minimale : ", (note) => {
           const min = parseFloat(note);
           if (isNaN(min)) {
-            console.error(" Entrez un nombre valide.");
+            console.error("Entrez un nombre valide.");
             return showMenu();
           }
           filterByMinNote(min);
-          return showMenu();
+          showMenu();
         });
         break;
 
@@ -147,18 +184,25 @@ function showMenu() {
           rl.question("Note à ajouter : ", (noteInput) => {
             const note = parseFloat(noteInput);
             addNoteToStudent(nom, note);
-            return showMenu();
+            showMenu();
           });
         });
         break;
 
       case "5":
-        console.log(" Fin du programme.");
+        rl.question("Nom de l'élève : ", (nom) => {
+          addMentionToStudent(nom);
+          showMenu();
+        });
+        break;
+
+      case "6":
+        console.log("Fin du programme.");
         rl.close();
         break;
 
       default:
-        console.warn(" Choix invalide.");
+        console.warn("Choix invalide.");
         return showMenu();
     }
   });
