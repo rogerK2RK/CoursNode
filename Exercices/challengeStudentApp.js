@@ -1,8 +1,8 @@
-const fs = require("fs");
+const fs = require("node:fs");
 const path = require("path");
 const readline = require("readline");
 
-// 🔁 Point important : fichier dans le dossier 'Data'
+// Point important : fichier dans le dossier 'Data'
 const filePath = path.join(__dirname, "Data", "student.json");
 
 // Charger les données depuis le JSON
