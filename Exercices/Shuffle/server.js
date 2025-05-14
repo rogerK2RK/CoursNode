@@ -2,8 +2,9 @@
 
 const http = require("http");
 const { shuffleArray } = require("./src/utils");
+const data = require("./data");
 
-let users = ['Alan', 'Sophie', 'Bernard', 'Elie']; // ou import depuis data.js
+let users = [...data]; 
 
 // Fonction pour générer une page HTML avec une liste
 function generateHTML(title, items) {
