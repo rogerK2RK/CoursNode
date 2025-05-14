@@ -2,7 +2,7 @@
 
 const http = require("http");
 const { shuffleArray } = require("./src/utils");
-const data = require("./data");
+const data = require("./data.js");
 
 let users = [...data]; 
 
